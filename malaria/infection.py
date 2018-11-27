@@ -1,7 +1,6 @@
 params = {
     "Infection_Updates_Per_Timestep": 8, ###
     "Enable_Superinfection": 1,
-    "Max_Individual_Infections": 3, ###
 
     "Mean_Sporozoites_Per_Bite": 11,
     "Base_Sporozoite_Survival_Fraction": 0.25,
@@ -24,6 +23,7 @@ params = {
     # 'Falciparum_Nonspecific_Types': 90,
     # 'Nonspecific_Antigenicity_Factor': 0.42,
     # 'Base_Gametocyte_Mosquito_Survival_Rate': 0.00088,
+    # "Max_Individual_Infections": 5,
 
     #180824 Prashanth parameters [description?]
     'Antigen_Switch_Rate': pow(10, -9.116590124),
