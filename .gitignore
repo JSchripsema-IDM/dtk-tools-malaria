@@ -1,3 +1,4 @@
 *.pyc
 malaria.egg-info/
 .idea/
+COMPS_log.log

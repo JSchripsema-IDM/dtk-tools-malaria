@@ -1,25 +1,22 @@
-import os
-
 from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
 from dtk.vector.species import set_params_by_species, update_species_param
 from dtk.interventions.property_change import change_individual_property_at_age
 from dtk.interventions.migrate_to import add_migration_event
+from dtk.interventions.outbreakindividual import recurring_outbreak
+from simtools.Utilities.Experiments import retrieve_experiment
+import os
 
 
-
-def standard_cb_updates(cb, years, geog_name, start_date=0):
+def standard_cb_updates(cb, years, geog_name):
 
     cb.update_params({
 
-        'Start_Date': start_date,
         'Simulation_Duration' : 365*years,
-
         'x_Temporary_Larval_Habitat': 0.5,
 
         # Spatial output
         'Enable_Spatial_Output': 0,
         'Spatial_Output_Channels': ['Population', 'Prevalence', 'Adult_Vectors', 'Daily_Bites_Per_Human'],
-
     })
 
     cb.update_params({
@@ -56,6 +53,7 @@ def standard_cb_updates(cb, years, geog_name, start_date=0):
         'Enable_Demographics_Other': 0
     })
 
+
 def update_vector_params(cb):
 
     set_params_by_species(cb.params, ['minimus', 'dirus'])
@@ -79,6 +77,7 @@ def update_vector_params(cb):
                      }
     update_species_param(cb, 'minimus', 'Larval_Habitat_Types', linear_spline, overwrite=False)
 
+
 def add_forest_migration(cb, start, years, forest, non_forest,
                          mig_type='one_season') :
 
@@ -93,10 +92,7 @@ def add_forest_migration(cb, start, years, forest, non_forest,
 
     # add seasonal migration to forest nodes
     for node_id in forest:
-
         nodes_from = non_forest
-
-
         for year in range(years):
 
             add_migration_event(cb, nodeto=node_id,
@@ -133,7 +129,7 @@ def add_forest_migration(cb, start, years, forest, non_forest,
     return { 'Forest_Migration_Start_Day' : start}
 
 
-def configure_forest_system(years=100, migration_start_day=91, migration_type='one_season', start_date=0) :
+def configure_forest_system(years=100, migration_start_day=91, migration_type='one_season') :
 
     # General
     village_nodes = [1, 2]
@@ -142,11 +138,29 @@ def configure_forest_system(years=100, migration_start_day=91, migration_type='o
 
     cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
 
-    standard_cb_updates(cb, years, geog_name, start_date=start_date)
+    standard_cb_updates(cb, years, geog_name)
     update_vector_params(cb)
 
     # For the forest: add Individual Properties so only some people travel to forest nodes
     change_individual_property_at_age(cb, 'ForestGoing', 'LovesForest', coverage=0.7,
                                       change_age_in_days=15*365, revert=20*365)
     add_forest_migration(cb, migration_start_day, years, forest_nodes, village_nodes, mig_type=migration_type)
+    recurring_outbreak(cb, start_day=(91 + 30), outbreak_fraction=0.2,
+                       nodes={"class": "NodeSetNodeList", 'Node_List': forest_nodes})
     return cb
+
+
+def set_up_input_paths(cb, exe_collection_id, dll_collection_id, input_collection_id, burnin_id='') :
+
+    cb.set_exe_collection(exe_collection_id)
+    cb.set_dll_collection(dll_collection_id)
+    cb.set_input_collection(input_collection_id)
+
+    if burnin_id :
+        expt = retrieve_experiment(burnin_id)
+        serialized_file_path = [sim.get_path() for sim in expt.simulations][0]
+
+        cb.update_params( {
+            'Serialized_Population_Path' : os.path.join(serialized_file_path, 'output'),
+            'Serialized_Population_Filenames' : ['state-36500.dtk']
+        })
