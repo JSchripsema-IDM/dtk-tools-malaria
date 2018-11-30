@@ -30,6 +30,7 @@ def add_diagnostic_survey(cb, coverage=1, repetitions=1, tsteps_btwn=365, target
     :param start_day: Start day for the outbreak
     :param coverage: probability an individual receives the diagnostic
     :param diagnostic_type:
+        SIMPLE
         BLOOD_SMEAR
         PCR
         PF_HRP2
@@ -68,7 +69,17 @@ def add_diagnostic_survey(cb, coverage=1, repetitions=1, tsteps_btwn=365, target
     #                     "class": "MalariaDiagnostic"
     #                     }
 
-    intervention_cfg = {
+    if diagnostic_type == "SIMPLE":
+        intervention_cfg = {
+            "Base_Sensitivity": 1.0,
+             "Base_Specificity": 1.0,
+             "Days_To_Diagnosis": 0.0,
+             "Treatment_Fraction": 1,
+             "class": "StandardDiagnostic",
+
+        }
+    else:
+        intervention_cfg = {
                         "MalariaDiagnostic_Type": diagnostic_type,
                         "Detection_Threshold": diagnostic_threshold, 
                         "class": "MalariaDiagnostic"                                          
