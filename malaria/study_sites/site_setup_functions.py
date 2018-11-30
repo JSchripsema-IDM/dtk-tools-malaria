@@ -70,6 +70,27 @@ class survey_report_fn:
         from malaria.reports.MalariaReport import add_survey_report
         return add_survey_report(cb, survey_days=self.survey_days, reporting_interval=self.reporting_interval,
                                  nreports=self.nreports)
+class patient_report_fn:
+    def __init__(self, interval=10000, nreports=1, survey_days=None, reporting_interval=None):
+        self.interval = interval
+        self.nreports = nreports
+        self.survey_days = survey_days
+        self.reporting_interval = reporting_interval or self.interval
+
+    def __call__(self, cb):
+        from malaria.reports.MalariaReport import add_patient_report
+        return add_patient_report(cb)
+
+
+class add_challenge_trial_fn:
+    def __init__(self, start_day=0):
+
+        self.start_day = start_day
+
+    def __call__(self, cb):
+        from malaria.interventions.malaria_challenge import add_challenge_trial
+        return add_challenge_trial(cb, start_day=self.start_day)
+
 
 class filtered_report_fn:
     def __init__(self, start, end=100000, nodes=[], description=''):
