@@ -15,14 +15,13 @@ from analyze_spatial_villages import SpatialAnalyzer
 # General
 exp_name = 'example_forest'
 years = 1  # length of simulation, in years
-num_seeds = 10
+num_seeds = 100
 
 # Setup ----------------------------------------------------------------------------------------------------------
 cb = configure_forest_system(years)
 
 cb.update_params( {
-    'Config_Name' : exp_name,
-    # 'Serialization_Time_Steps' : [365*years]
+    'Config_Name' : exp_name
 })
 
 burnin_id = "f7609a58-29f4-e811-a2bd-c4346bcb1555"

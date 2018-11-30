@@ -1,17 +1,10 @@
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import matplotlib as mpl
-import os
 from simtools.Analysis.BaseAnalyzers import BaseAnalyzer
 
-from simtools.Analysis.AnalyzeManager import AnalyzeManager
-from simtools.SetupParser import SetupParser
-
+# requires malaria-toolbox installed
 from plotting.colors import load_color_palette
-
-mpl.rcParams['pdf.fonttype'] = 42
 
 
 class MigrationCountAnalyzer(BaseAnalyzer) :
@@ -42,60 +35,62 @@ class MigrationCountAnalyzer(BaseAnalyzer) :
             return
 
         adf = pd.concat(selected).reset_index(drop=True)
-        migration_types = len(adf['MigrationType'].unique())
+        num_migration_types = len(adf['MigrationType'].unique())
 
         sns.set_style('white', {'axes.linewidth' : 0.5})
         palette = load_color_palette()
-        fig = plt.figure('Migration')
+        fig = plt.figure('Migration', figsize=(16,7))
+        fig.subplots_adjust(right=0.98, left=0.05, wspace=0.25)
+
         for m, (mig, mdf) in enumerate(adf.groupby('MigrationType')) :
-            ax = fig.add_subplot(migration_types, 4, m*4+1)
+            ax = fig.add_subplot(num_migration_types, 4, m*4+1)
             num_events = mdf.groupby('Run_Number')['Event'].agg(len).values
             sns.distplot(num_events, ax=ax, color=palette[m], label=mig)
             ax.set_xlabel('number of trips')
-            ax.set_ylabel('frequency')
+            ax.set_ylabel('frac of sims')
+            ax.legend()
 
-            df = adf[adf['Run_Number'] == 0]
-            df = df[df['MigrationType'] == mig]
-            # df = df[(df['From_NodeID'] == self.forest_nodeid) | (df['To_NodeID'] == self.forest_nodeid)]
+            ax = fig.add_subplot(num_migration_types, 4, m*4+2)
+            for r, rdf in mdf.groupby('Run_Number') :
+                sns.kdeplot(rdf['AgeYears'], ax=ax, color=palette[m], linewidth=0.5, alpha=0.5, label='')
+            sns.kdeplot(mdf['AgeYears'], ax=ax, color=palette[m], label='')
+            ax.set_xlabel('Traveler age')
+            ax.set_ylabel('fraction of trips')
+            ax.set_xlim(-5, 205)
 
-            df['time in year'] = df['Time'].apply(lambda x : x % 365)
-            df['month in year'] = df['time in year'].apply(lambda x: int(x/30))
+            ax = fig.add_subplot(num_migration_types, 4, m*4+3)
+            for r, rdf in mdf.groupby('Run_Number') :
+                trip_durations = []
+                grouped = rdf.groupby('IndividualID')
+                for gn, gdf in grouped :
+                    t = gdf['Time'].values
+                    d = [t[2*x+1] - t[2*x] for x in range(int(len(t)/2))]
+                    trip_durations.extend(d)
 
-            # trip_durations = []
-            # grouped = df.groupby('IndividualID')
-            # for gn, gdf in grouped :
-            #     t = gdf['Time'].values
-            #     d = [t[2*x+1] - t[2*x] for x in range(len(t)/2)]
-            #     trip_durations.extend(d)
-            #
-            # ax.hist(trip_durations, linewidth=0, bins=20, color='#7AC4AD')
-            # ax.set_xlabel('days in forest')
-            # ax.set_ylabel('number of trips')
+                sns.kdeplot(trip_durations, ax=ax, linewidth=0.5, color=palette[m])
+            ax.set_xlabel('days at destination')
+            ax.set_ylabel('fraction of trips')
 
-            ax = fig.add_subplot(migration_types, 4, m * 4 + 2)
-            # #df = df[df['Time'] >= 365]
-            # ax = fig.add_subplot(1,3,2)
-            grouped = df[df['To_NodeID'] == self.forest_nodeid].groupby('month in year')
-            ax.bar([gn for gn, gdf in grouped], [len(gdf) for gn, gdf in grouped], align='center',
-                   linewidth=0, color='#7AC4AD')
-            #ax.set_xlim(-1,53)
-            ax.set_xlabel('month departing to forest')
-            #
-            ax = fig.add_subplot(migration_types, 4, m * 4 + 3)
-            grouped = df[df['From_NodeID'] == self.forest_nodeid].groupby('month in year')
-            ax.bar([gn for gn, gdf in grouped], [len(gdf) for gn, gdf in grouped], align='center',
-                   linewidth=0, color='#7AC4AD')
-            #ax.set_xlim(-1,53)
-            ax.set_xlabel('month returning from forest')
+            ax = fig.add_subplot(num_migration_types, 4, m*4+4)
+            if mig == 'intervention' :
+                for r, rdf in mdf.groupby('Run_Number') :
+                    sns.kdeplot(rdf[rdf['To_NodeID'] == self.forest_nodeid]['Time'], ax=ax,
+                                color=palette[2], label='', linewidth=0.5, alpha=0.5)
+                sns.kdeplot(mdf[mdf['To_NodeID'] == self.forest_nodeid]['Time'], ax=ax,
+                            color=palette[2], label='to forest')
+                for r, rdf in mdf.groupby('Run_Number') :
+                    sns.kdeplot(rdf[rdf['From_NodeID'] == self.forest_nodeid]['Time'], ax=ax,
+                                color=palette[3], label='', linewidth=0.5, alpha=0.5)
+                sns.kdeplot(mdf[mdf['From_NodeID'] == self.forest_nodeid]['Time'], ax=ax,
+                            color=palette[3], label='from forest')
+            else :
+                for r, rdf in mdf.groupby('Run_Number'):
+                    sns.kdeplot(rdf['Time'], ax=ax,
+                                color=palette[3], label='', linewidth=0.5, alpha=0.5)
+                sns.kdeplot(mdf['Time'], ax=ax, label='',
+                            color=palette[3])
+            ax.set_xlim(-5,370)
+            ax.set_xlabel('travel day')
+            ax.set_ylabel('fraction of trips')
 
         plt.show()
-
-
-if __name__ == '__main__':
-
-    SetupParser.init("HPC")
-    am = AnalyzeManager(exp_list='a2743ddf-30f4-e811-a2bd-c4346bcb1555', analyzers=MigrationCountAnalyzer(forest_nodeid=3),
-                        force_analyze=True)
-
-    print(am.experiments)
-    am.analyze()
