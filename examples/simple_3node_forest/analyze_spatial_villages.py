@@ -3,8 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from simtools.Analysis.BaseAnalyzers import BaseAnalyzer
+
+# requires malaria-toolbox installed
 from sim_output_processing.spatial_output_dataframe import construct_spatial_output_df
 from plotting.colors import load_color_palette
+
 
 def top95(x) :
     return np.percentile(x, 95)
@@ -12,11 +15,11 @@ def bot5(x) :
     return np.percentile(x, 5)
 
 
-class PrevalenceAnalyzer(BaseAnalyzer):
+class SpatialAnalyzer(BaseAnalyzer):
 
     def __init__(self, spatial_channels, working_dir='.'):
-        super(PrevalenceAnalyzer, self).__init__(working_dir=working_dir,
-                                                 filenames=['output/SpatialReportMalariaFiltered_%s.bin' % x for x in spatial_channels]
+        super(SpatialAnalyzer, self).__init__(working_dir=working_dir,
+                                              filenames=['output/SpatialReportMalariaFiltered_%s.bin' % x for x in spatial_channels]
                                            )
         self.sweep_variables = ['Run_Number']
         self.spatial_channels = spatial_channels
@@ -51,12 +54,18 @@ class PrevalenceAnalyzer(BaseAnalyzer):
 
         sns.set_style('white', {'axes.linewidth' : 0.5})
         palette = load_color_palette()
-        fig = plt.figure()
+        fig = plt.figure('Spatial Outputs')
         for c, channel in enumerate(self.spatial_channels) :
             gdf = df.groupby(['node', 'time'])[channel].agg([np.mean, top95, bot5]).reset_index()
             for n, (node, ndf) in enumerate(gdf.groupby('node')) :
-                ax = fig.add_subplot(num_channels, num_nodes, c*num_channels + n + 1)
+                ax = fig.add_subplot(num_channels, num_nodes, c*num_nodes + n + 1)
                 ax.plot(ndf['time'], ndf['mean'], color=palette[n], label=node)
                 ax.fill_between(ndf['time'], ndf['bot5'], ndf['top95'], color=palette[n], alpha=0.3, linewidth=0)
+                if n == 0 :
+                    ax.set_ylabel(channel)
+                if c == 0 :
+                    ax.set_title('node %d' % node)
+                if c == num_channels - 1 :
+                    ax.set_xlabel('day')
 
         plt.show()

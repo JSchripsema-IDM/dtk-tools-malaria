@@ -9,16 +9,13 @@ from configure_forest_system import configure_forest_system, set_up_input_paths
 
 from simtools.Analysis.AnalyzeManager import AnalyzeManager
 from analyze_migration import MigrationCountAnalyzer
-from analyze_village_prevalence import PrevalenceAnalyzer
+from analyze_spatial_villages import SpatialAnalyzer
+
 
 # General
 exp_name = 'example_forest'
 years = 1  # length of simulation, in years
 num_seeds = 10
-
-analyzers = (PrevalenceAnalyzer(spatial_channels=['Prevalence', 'New_Infections']),
-             MigrationCountAnalyzer())
-
 
 # Setup ----------------------------------------------------------------------------------------------------------
 cb = configure_forest_system(years)
@@ -35,6 +32,10 @@ input_collection_id = "dc81f29a-e773-e811-a2c0-c4346bcb7275"
 
 village_nodes = [1,2]
 forest_nodes = [3]
+
+analyzers = (SpatialAnalyzer(spatial_channels=['Prevalence', 'New_Infections']),
+             MigrationCountAnalyzer(forest_nodeid=forest_nodes[0]))
+
 
 set_up_input_paths(cb, exe_collection_id, dll_collection_id, input_collection_id, burnin_id)
 
@@ -85,3 +86,4 @@ if __name__ == "__main__":
     for a in analyzers:
         am.add_analyzer(a)
     am.analyze()
+
