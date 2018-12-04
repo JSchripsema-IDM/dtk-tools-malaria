@@ -2,7 +2,7 @@
 #title: run_malariatherapy_dtk.py
 #
 #description: An example script for running malariatherapy challenge bite style infections where infection shapes
-# are drawn using scalable transitions as decsribed in the Malaria 2.0 work. 
+# are drawn using scalable transitions as decsribed in the Malaria 2.0 work.
 #
 #author: Jon Russell
 #
@@ -12,21 +12,24 @@
 #
 #Institute for Disease Modeling, Bellevue, WA
 
-
-
 import os
 from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
 from dtk.generic.climate import set_climate_constant
+
 from simtools.SetupParser import SetupParser
 from simtools.ExperimentManager.ExperimentManagerFactory import ExperimentManagerFactory
+from simtools.ModBuilder import  ModFn, ModBuilder
+from simtools.Analysis.AnalyzeManager import AnalyzeManager
+
 from malaria.interventions.malaria_challenge import add_challenge_trial
 from malaria.reports.MalariaReport import add_patient_report
-from simtools.ModBuilder import  ModFn, ModBuilder
+
+from analyze_infection_durations import DurationsAnalyzer
 from immunity_transitions_configuration import set_transition_matrix
 
 
 # General
-working_dir =  r'C:/IDM/dtk-tools-malaria/examples/malariatherapy/'
+working_dir =  './'
 exp_name = 'Malariatherapy_2pt0_infections'
 years = 1  # length of simulation, in years
 immunity_forcing_on = 1
@@ -39,13 +42,15 @@ cb.update_params({'Vector_Species_Names' : [],
                   'Demographics_Filenames' : ['Malariatherapy_demographics.json']
                   })
 set_climate_constant(cb)
+analyzers = [DurationsAnalyzer()
+             ]
 
 # Specify immune parameters --------------------------------------------------------------------------------------
 if immunity_forcing_on == 1:
 
-    #Pull the naive transitin matrix values from the config
+    #Pull the naive transition matrix values from the config
     transition_matrix = cb.config['parameters']['Parasite_Peak_Density_Probabilities']
-    #Sepcify the scaling of the transitio matrix to be applied (representing increasing immune pressure)
+    #Specify the scaling of the transitio matrix to be applied (representing increasing immune pressure)
     scale_factor_array = [2,5,10,100]
 
     builder = ModBuilder.from_combos(
@@ -75,3 +80,7 @@ if __name__ == "__main__":
     exp_manager.run_simulations(**run_sim_args)
     exp_manager.wait_for_finished(verbose=True)
     assert (exp_manager.succeeded())
+    am = AnalyzeManager(exp_manager.experiment)
+    for a in analyzers:
+        am.add_analyzer(a)
+    am.analyze()
