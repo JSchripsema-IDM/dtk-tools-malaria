@@ -6,7 +6,7 @@ from examples.magude_multinode.interventions import add_all_interventions
 from examples.magude_multinode.reports import add_all_reports
 
 # Run parameters:
-run_priority = "AboveNormal"
+run_priority = "Highest"
 run_coreset = "emod_32cores"
 experiment_name = "CoreMagude_Test"
 

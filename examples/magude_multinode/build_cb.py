@@ -43,7 +43,7 @@ def build_project_cb():
 
     # Draw from serialized file.  This is a serialized file run from a calibrated burnin
     cb.update_params({
-        "Serialized_Population_Path": "//internal.idm.ctr/IDM/home/jsuresh/input/Magude_Core_Geography_Example/",
+        "Serialized_Population_Path": "//internal.idm.ctr/IDM/home/jsuresh/input/Magude_Core_Geography_Example/old_ento/",
         'Serialized_Population_Filenames': ['state-00000-000.dtk','state-00000-001.dtk']
     })
     # [As of writing this code, serialization files could only be staged from COMPS]
