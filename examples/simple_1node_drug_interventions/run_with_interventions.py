@@ -1,10 +1,14 @@
-from calibtool.study_sites.site_setup_functions import summary_report_fn
+from malaria.study_sites.site_setup_functions import summary_report_fn
 from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
 from malaria.interventions.malaria_drug_campaigns import add_drug_campaign
 from simtools.ExperimentManager.ExperimentManagerFactory import ExperimentManagerFactory
 from simtools.ModBuilder import ModBuilder, ModFn
 from simtools.SetupParser import SetupParser
 from examples.simple_1node_drug_interventions.configure_sahel_intervention_system import configure_sahel_intervention_system
+
+import os
+
+
 
 
 def add_smc_group(cb, coverage=1.0, start_days=[60, 60+365], agemax=10, drug='DP'):
@@ -36,19 +40,22 @@ def add_summary_report(cb, start_day=0):
     summary_report_fn(start=start_day+1, interval=1.0, description='Daily_Report',
                       age_bins=[5.0, 10.0, 100.0])(cb)
 
-    return None
+    return {'report_start_day': start_day}
 
 
 sim_duration = 1    # in years
 num_seeds = 1
 
-serialization_path = './input'
+# Run create_serialized_file.py to generate serialized file
+
+serialization_path = './Assets'
 
 expname = 'single_node_example_with_interventions'
 
-
 # Initialize and setup config builder
 cb = configure_sahel_intervention_system(sim_duration)
+
+cb.experiment_files.add_file("input/serialized_sahel.dtk")
 
 cb.update_params({'Serialized_Population_Filenames': ['serialized_sahel.dtk'],
                   'Serialized_Population_Path': serialization_path
@@ -60,18 +67,18 @@ coverages = [0.6, 0.7, 0.8, 0.9, 1.0]
 
 SMC = [
             [
-               ModFn(DTKConfigBuilder.set_param, 'Run_Number', seed),
-               ModFn(DTKConfigBuilder.set_param, 'Simulation_Duration', smc_start_day+365),
-               ModFn(add_smc_group,
-                         start_days=[smc_start_day],
-                         coverage=smc_coverage, drug=drug, agemax=agemax),
+               # ModFn(DTKConfigBuilder.set_param, 'Run_Number', seed),
+               # ModFn(DTKConfigBuilder.set_param, 'Simulation_Duration', smc_start_day+365),
+               # ModFn(add_smc_group,
+               #           start_days=[smc_start_day],
+               #           coverage=smc_coverage, drug=drug, agemax=agemax),
                ModFn(add_summary_report, start_day=smc_start_day),
             ]
            for smc_start_day in intervention_days
-           for smc_coverage in coverages
-           for seed in range(num_seeds)
-           for agemax in [5]
-           for drug in ['DP']
+           # for smc_coverage in coverages
+           # for seed in range(num_seeds)
+           # for agemax in [5]
+           # for drug in ['DP']
         ]
 
 builder = ModBuilder.from_list(SMC)
