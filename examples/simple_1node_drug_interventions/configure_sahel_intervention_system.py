@@ -37,12 +37,13 @@ def update_vector_params(cb):
     cb.update_params({"Vector_Species_Names": ['gambiae']})
     set_species_param(cb, 'gambiae', 'Larval_Habitat_Types',
                       {"LINEAR_SPLINE": {
-                          "Capacity_Distribution_Per_Year": {
+                          "Capacity_Distribution_Over_Time": {
                               "Times": [0.0, 30.417, 60.833, 91.25, 121.667, 152.083,
                                         182.5, 212.917, 243.333, 273.75, 304.167, 334.583],
-                              "Values": [3, 0.8, 1.25, 0.1, 2.7, 8, 4, 35, 6.8, 6.5, 2.6, 2.1]
+                              "Values": [3, 0.8, 1.25, 0.1, 2.7, 10, 6, 35, 2.8, 1.5, 1.6, 2.1]
                           },
-                          "Max_Larval_Capacity": 1e9
+                          "Capacity_Distribution_Number_Of_Years": 1,
+                          "Max_Larval_Capacity": pow(10, 8)
                       }})
     set_species_param(cb, "gambiae", "Indoor_Feeding_Fraction", 0.9)
     set_species_param(cb, "gambiae", "Adult_Life_Expectancy", 20)
