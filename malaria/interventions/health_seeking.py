@@ -28,32 +28,35 @@ def add_health_seeking(config_builder,
                        broadcast_event_name='Received_Treatment'):
 
     """
-    Add a `SimpleHealthSeekingBehavior <http://www.idmod.org/docs/malaria/parameter-campaign-individual-simplehealthseekingbehavior.html?searchText=health%20seeking>`_ .
-    :param config_builder: The :py:class:`DTKConfigBuilder <dtk.utils.core.DTKConfigBuilder>` containing the campaign configuration
-    :param start_day: Day we want to start the intervention
-    :param targets: The different targets held in a list of dictionaries (see default for example)
-    :param drug: The drug to administer
-    Format: str for a single drug or list of str for multiple drugs
-    :param dosing: The dosing for the drugs
-    :param nodes: nodes to target.
-    # All nodes: {"class": "NodeSetAll"}.
-    # Subset of nodes: {"class": "NodeSetNodeList", "Node_List": list_of_nodeIDs}
-    :param node_property_restrictions: used with NodePropertyRestrictions.
-    Format: list of dicts: [{ "NodeProperty1" : "PropertyValue1" }, {'NodeProperty2': "PropertyValue2"}, ...]
-    :param ind_property_restrictions: used with Property_Restrictions_Within_Node.
-    Format: list of dicts: [{ "IndividualProperty1" : "PropertyValue1" }, {'IndividualProperty2': "PropertyValue2"}, ...]
-    :param disqualifying_properties:A list of Individual Property Key:Value pairs that cause an intervention to be aborted
-    FormatL list of strings: ["IndividualProperty1:PropertyValue1"]
-    :param drug_ineligibility_duration: if this param is > 0, use IndividualProperties to prevent people from receiving
-    drugs too frequently. Demographics file will need to define the IP DrugStatus with possible values None and
-    RecentDrug. Individuals who receive drugs for treatment will have their DrugStatus changed to RecentDrug for
-    drug_ineligibility_duration days. Individuals who already have status RecentDrug will not receive drugs for
-    treatment.
-    :param duration: how long the intervention lasts
-    :param repetitions: Number repetitions
-    :param tsteps_btwn_repetitions: Timesteps between the repetitions
-    :param broadcast_event_name: Broadcast event
-    :return:
+        Add a `SimpleHealthSeekingBehavior <http://www.idmod.org/docs/malaria/parameter-campaign-individual-simplehealthseekingbehavior.html?searchText=health%20seeking>`_ .
+    Args:
+        config_builder: The :py:class:`DTKConfigBuilder <dtk.utils.core.DTKConfigBuilder>` containing the campaign configuration
+        start_day: Day we want to start the intervention
+        targets: The different targets held in a list of dictionaries (see default for example)
+        drug: The drug to administer
+            Format: str for a single drug or list of str for multiple drugs
+        dosing: The dosing for the drugs
+        nodes: nodes to target.
+            All nodes: {"class": "NodeSetAll"}.
+            Subset of nodes: {"class": "NodeSetNodeList", "Node_List": list_of_nodeIDs}
+        node_property_restrictions: used with NodePropertyRestrictions.
+            Format: list of dicts: [{ "NodeProperty1" : "PropertyValue1" }, {'NodeProperty2': "PropertyValue2"}, ...]
+        ind_property_restrictions: used with Property_Restrictions_Within_Node.
+            Format: list of dicts: [{ "IndividualProperty1" : "PropertyValue1" }, {'IndividualProperty2': "PropertyValue2"}, ...]
+        disqualifying_properties: A list of Individual Property Key:Value pairs that cause an intervention to be aborted
+            FormatL list of strings: ["IndividualProperty1:PropertyValue1"]
+        drug_ineligibility_duration: if this param is > 0, use IndividualProperties to prevent people from receiving
+            drugs too frequently. Demographics file will need to define the IP DrugStatus with possible values None and
+            RecentDrug. Individuals who receive drugs for treatment will have their DrugStatus changed to RecentDrug for
+            drug_ineligibility_duration days. Individuals who already have status RecentDrug will not receive drugs for
+            treatment.
+        duration: how long the intervention lasts.
+        repetitions: Number repetitions.
+        tsteps_btwn_repetitions: Timesteps between the repetitions.
+        broadcast_event_name: Broadcast event.
+
+    Returns:
+
     """
 
     receiving_drugs_event = {
