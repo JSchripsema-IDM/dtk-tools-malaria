@@ -44,7 +44,7 @@ def add_health_seeking(config_builder,
         ind_property_restrictions: used with Property_Restrictions_Within_Node.
             Format: list of dicts: [{ "IndividualProperty1" : "PropertyValue1" }, {'IndividualProperty2': "PropertyValue2"}, ...]
         disqualifying_properties: A list of Individual Property Key:Value pairs that cause an intervention to be aborted
-            FormatL list of strings: ["IndividualProperty1:PropertyValue1"]
+            Format: list of strings: ["IndividualProperty1:PropertyValue1"]
         drug_ineligibility_duration: if this param is > 0, use IndividualProperties to prevent people from receiving
             drugs too frequently. Demographics file will need to define the IP DrugStatus with possible values None and
             RecentDrug. Individuals who receive drugs for treatment will have their DrugStatus changed to RecentDrug for
