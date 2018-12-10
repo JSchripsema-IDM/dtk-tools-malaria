@@ -2,7 +2,6 @@ import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
 from simtools.Analysis.BaseAnalyzers import BaseAnalyzer
-from statsmodels.nonparametric.smoothers_lowess import lowess
 
 
 class PfPRAnalyzer(BaseAnalyzer):
@@ -15,20 +14,20 @@ class PfPRAnalyzer(BaseAnalyzer):
         self.sweep_variables = sweep_variables or ["Run_Number"]
         self.sitenames=report_names
         self.expt_name = expt_name
+        self.data_channel = "PfPR_2to10"
 
     def select_simulation_data(self, data, simulation):
-        colname = "initial_prev" if self.dir_name == "initial" else "final_prev"
 
         simdata = []
 
         for site_name in self.sitenames:
 
             try:
-                channeldata = data["output/MalariaSummaryReport_{name}.json".format(name=site_name)]["DataByTime"]["PfPR_2to10"]
+                channeldata = data["output/MalariaSummaryReport_{name}.json".format(name=site_name)]["DataByTime"][self.data_channel]
             except:
                 print("file not found for sim" + simulation.id)
 
-            tempdata = pd.DataFrame({colname: channeldata,
+            tempdata = pd.DataFrame({self.data_channel: channeldata,
                                     "Site_Name": site_name})
             tempdata = tempdata[-2:-1]
             simdata.append(tempdata)
@@ -37,6 +36,9 @@ class PfPRAnalyzer(BaseAnalyzer):
         for sweep_var in self.sweep_variables:
             if sweep_var in simulation.tags.keys():
                 simdata[sweep_var] = simulation.tags[sweep_var]
+        for tag in simulation.tags :
+            if 'coverage' in tag :
+                simdata[tag] = simulation.tags[tag]
         return simdata
 
     def finalize(self, all_data):
@@ -48,8 +50,6 @@ class PfPRAnalyzer(BaseAnalyzer):
 
         df = pd.concat(selected).reset_index(drop=True)
 
-        datachannel = 'PfPR2to10'
-
         num_interventions = len(df['intervention'].unique())
         num_sites = len(df['Site_Name'].unique())
 
@@ -58,20 +58,38 @@ class PfPRAnalyzer(BaseAnalyzer):
         axes = [fig.add_subplot(num_interventions, num_sites, d + 1) for d in range(num_interventions*num_sites)]
         palette = sns.color_palette('Blues')
 
-        baseline = df[all([df['%s_coverage' % x] == 0 for x in df['intervention'].unique()])]
-
         for s, (site, sdf) in enumerate(df.groupby('Site_Name')):
-            sdf = sdf.sort_values(by='PfPR2to10')
             for i, (intervention, idf) in enumerate(sdf.groupby('intervention')):
-                ax = axes[s*num_sites+i]
+                idf = idf.sort_values(by=self.data_channel)
+                baseline = idf[idf['%s_coverage' % intervention] == 0]
+                ax = axes[i*num_sites + s]
                 for c, (coverage, cdf) in enumerate(idf.groupby('%s_coverage' % intervention)) :
-                    xvar = [y for x, y in zip(cdf[datachannel].values, baseline[datachannel].values) if (y > 0)]
-                    yvar = [x for x, y in zip(cdf[datachannel].values, baseline[datachannel].values) if (y > 0)]
-                    ys = lowess(yvar, xvar, frac=0.2)[:, 1]
-                    ax.plot(xvar, ys, '-', color=palette[c], label=coverage)
-                ax.set_xlabel('%s no intervention' % datachannel)
-                ax.set_ylabel('%s with intervention' % datachannel)
-                ax.set_title(intervention)
+                    print(c, baseline[self.data_channel], cdf[self.data_channel])
+                    exit()
+                    ax.plot(baseline[self.data_channel], cdf[self.data_channel], '-', color=palette[c], label=coverage)
+                ax.set_xlabel('%s no intervention' % self.data_channel)
+                ax.set_ylabel('%s with intervention' % self.data_channel)
+                ax.set_title('%s %s' % (site, intervention))
 
         axes[-1].legend()
         plt.show()
+
+
+if __name__ == "__main__":
+
+    from simtools.Analysis.AnalyzeManager import AnalyzeManager
+    from simtools.SetupParser import SetupParser
+
+    SetupParser.default_block = 'HPC'
+    SetupParser.init()
+    sites = pd.read_csv("site_details.csv")
+
+    analyzer = PfPRAnalyzer(expt_name='global_int_ex_test',
+                              report_names=sites["name"].tolist(),
+                              sweep_variables=["Run_Number",
+                                               "x_Temporary_Larval_Habitat",
+                                               "intervention"
+                                               ])
+
+    am = AnalyzeManager('9fafe8d6-cefc-e811-a2bd-c4346bcb1555', analyzers=analyzer)
+    am.analyze()
