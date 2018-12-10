@@ -28,7 +28,6 @@ def add_health_seeking(config_builder,
                        broadcast_event_name='Received_Treatment'):
 
     """
-        Add a `SimpleHealthSeekingBehavior <http://www.idmod.org/docs/malaria/parameter-campaign-individual-simplehealthseekingbehavior.html?searchText=health%20seeking>`_ .
     Args:
         config_builder: The :py:class:`DTKConfigBuilder <dtk.utils.core.DTKConfigBuilder>` containing the campaign configuration
         start_day: Day we want to start the intervention
