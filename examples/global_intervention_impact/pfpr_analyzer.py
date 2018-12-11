@@ -48,30 +48,33 @@ class PfPRAnalyzer(BaseAnalyzer):
             print("No data have been returned... Exiting...")
             return
 
-        df = pd.concat(selected).reset_index(drop=True)
+        df = pd.concat(selected, sort=False).reset_index(drop=True)
 
         num_interventions = len(df['intervention'].unique())
         num_sites = len(df['Site_Name'].unique())
+        num_coverages = len(df['%s_coverage' % (df['intervention'].unique()[0])].unique())
 
         sns.set_style('whitegrid', {'axes.linewidth': 0.5})
-        fig = plt.figure('%s PfPR' % self.expt_name, figsize=(15, 10))
+        fig = plt.figure('%s PfPR' % self.expt_name, figsize=(20, 10))
+        fig.subplots_adjust(left=0.05, right=0.98)
         axes = [fig.add_subplot(num_interventions, num_sites, d + 1) for d in range(num_interventions*num_sites)]
-        palette = sns.color_palette('Blues')
+        palette = sns.color_palette('rainbow', num_coverages-1)
 
         for s, (site, sdf) in enumerate(df.groupby('Site_Name')):
             for i, (intervention, idf) in enumerate(sdf.groupby('intervention')):
                 idf = idf.sort_values(by=self.data_channel)
                 baseline = idf[idf['%s_coverage' % intervention] == 0]
                 ax = axes[i*num_sites + s]
+                ax.plot([0,1], [0,1], '--k', linewidth=0.75)
                 for c, (coverage, cdf) in enumerate(idf.groupby('%s_coverage' % intervention)) :
-                    print(c, baseline[self.data_channel], cdf[self.data_channel])
-                    exit()
                     ax.plot(baseline[self.data_channel], cdf[self.data_channel], '-', color=palette[c], label=coverage)
-                ax.set_xlabel('%s no intervention' % self.data_channel)
-                ax.set_ylabel('%s with intervention' % self.data_channel)
+                if i == num_interventions - 1 :
+                    ax.set_xlabel('%s no intervention' % self.data_channel)
+                if s == 0 :
+                    ax.set_ylabel('%s with intervention' % self.data_channel)
                 ax.set_title('%s %s' % (site, intervention))
 
-        axes[-1].legend()
+        axes[-1].legend(title='coverage')
         plt.show()
 
 
@@ -91,5 +94,5 @@ if __name__ == "__main__":
                                                "intervention"
                                                ])
 
-    am = AnalyzeManager('9fafe8d6-cefc-e811-a2bd-c4346bcb1555', analyzers=analyzer)
+    am = AnalyzeManager('d9bf3918-d8fc-e811-a2bd-c4346bcb1555', analyzers=analyzer)
     am.analyze()

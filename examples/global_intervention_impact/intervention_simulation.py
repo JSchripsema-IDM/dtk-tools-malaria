@@ -27,7 +27,7 @@ asset_exp_id = "66d8416c-9fce-e811-a2bd-c4346bcb1555"
 intervention_coverages = [100]
 interventions = ["atsb", 'itn', 'irs', 'health_seeking']
 num_runs = 1
-num_coverage_bins = 2
+num_coverage_bins = 5
 
 # Serialization
 print("setting up")
@@ -157,7 +157,7 @@ if __name__=="__main__":
                 "Run_Number": y,
                 "x_Temporary_Larval_Habitat": df["x_Temporary_Larval_Habitat"][x]})
 
-            for x in df.index[35:40]
+            for x in df.index
             for y in range(num_runs)
         ]
 
