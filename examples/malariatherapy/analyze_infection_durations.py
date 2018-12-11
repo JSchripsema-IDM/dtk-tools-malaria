@@ -1,21 +1,23 @@
 
-#title: analyze_infection_durations.py
-#
-#description: An analyzer aimed to plotthe distribution of infection durations (total days with patent parasitemia from
-# a challenge bite) that are emitted via the Malaria Patient Report output from DTK simulations.
-#
-#author: Jon Russell
-#
-#date: 11/29/2018
-#
-#notes and dependencies: uses malariatherapy.txt as input, relies on peak_finding.py in same dir
-#
-#Institute for Disease Modeling, Bellevue, WA
+"""
+title: analyze_infection_durations.py
+
+description: An analyzer aimed to plotthe distribution of infection durations (total days with patent parasitemia from
+a challenge bite) that are emitted via the Malaria Patient Report output from DTK simulations.
+
+author: Jon Russell
+
+date: 11/29/2018
+
+notes and dependencies: uses malariatherapy.txt as input, relies on peak_finding.py in same dir
+
+Institute for Disease Modeling, Bellevue, WA
+"""
 
 from simtools.Analysis.BaseAnalyzers import BaseAnalyzer
 import pandas as pd
 import numpy as np
-import os
+from os import path
 import matplotlib.pyplot as plt
 
 class DurationsAnalyzer(BaseAnalyzer):
@@ -29,7 +31,6 @@ class DurationsAnalyzer(BaseAnalyzer):
         patient_df = pd.DataFrame({'patient %d' % x['id']: x[self.channel][0] for x in patient_data})
         patient_df.reset_index(drop=True)
         return patient_df
-
 
     def finalize(self, all_data):
         bins = np.linspace(0,365,12)
@@ -51,10 +52,11 @@ class DurationsAnalyzer(BaseAnalyzer):
             ax.set_ylim([0,0.01])
             ax.annotate("Mean = %s" %np.mean(simulation_durations),xy = (250,0.009),size= 'large')
             ax.annotate(f"ScaleFactor = {sf}", xy=(250, 0.008), size='large')
+            
+            ax.set_xlabel('Infection Duration (days)')
+            ax.set_ylabel('Frequency')
 
-            plt.savefig(os.path.join(os.path.expanduser('~'), 'Dropbox (IDM)',
-                                   'Malaria Team Folder', 'projects',
-                                   'updated_infection_and_immunity', 'malaria-two-pt-oh', 'figures','infection_durations', f"{sim_id}_{sf}_{seed}.eps"))
+            plt.savefig(path.join(self.working_dir, f"{sim_id}_{sf}_{seed}.eps"))
             plt.show()
 
 

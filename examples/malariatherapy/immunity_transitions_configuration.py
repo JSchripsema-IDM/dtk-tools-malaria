@@ -1,9 +1,5 @@
-import os
 import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
 import copy
-from sympy import Matrix
 
 
 def probability_shifting_module(TM, immune_stimulation_threshold,row_scale_factor,column_scale_factor):
