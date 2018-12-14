@@ -23,21 +23,25 @@ def add_diagnostic_survey(cb, coverage=1, repetitions=1, tsteps_btwn=365, target
     Function to add recurring prevalence surveys with configurable diagnostic
     When using "trigger_condition_list", the diagnostic is triggered by the words listed
 
-    :param cb: Configuration builder holding the interventions
-    :param repetitions: Number of repetitions
-    :param tsteps_btwn:  Timesteps between repetitions
-    :param target: Target demographic. Default is 'Everyone'
-    :param start_day: Start day for the outbreak
-    :param coverage: probability an individual receives the diagnostic
-    :param diagnostic_type:
-        TRUE_INFECTION_STATUS
-        BLOOD_SMEAR
-        PCR
-        PF_HRP2
-        TRUE_PARASITE_DENSITY
-        HAS_FEVER
-    :param diagnostic_threshold :
+    Args:
+      cb: Configuration builder holding the interventions
+      repetitions: Number of repetitions
+      tsteps_btwn:  Timesteps between repetitions
+      target: Target demographic. Default is 'Everyone'
+      start_day: Start day for the outbreak
+      coverage: probability an individual receives the diagnostic
+      diagnostic_type: One of the following enum values:
+
+        * TRUE_INFECTION_STATUS
+        * BLOOD_SMEAR
+        * PCR
+        * PF_HRP2
+        * TRUE_PARASITE_DENSITY
+        * HAS_FEVER
+
+      diagnostic_threshold:
         Detection_Threshold becomes a parameter required by all types. The units of the threshold depend on the diagnostic type selected.
+        
         BLOOD_SMEAR
             Use the SusceptibilityMalaria::CheckParasiteCountWithTest() (or at least logic) to get a parasite density to check against the threshold
         PCR
@@ -48,17 +52,19 @@ def add_diagnostic_survey(cb, coverage=1, repetitions=1, tsteps_btwn=365, target
             Check the true/actual parasite density against the threshold
         HAS_FEVER
             Check the person's fever against the threshold
-    :param nodes: nodes to target.
-    # All nodes: {"class": "NodeSetAll"}.
-    # Subset of nodes: {"class": "NodeSetNodeList", "Node_List": list_of_nodeIDs}
-    :param positive_diagnosis_configs: list of events to happen to individual who receive a positive result from test
-    :param received_test_event: string for individuals to broadcast upon receiving diagnostic
-    :param IP_restrictions: list of IndividualProperty restrictions to restrict who takes action upon positive diagnosis
-    :param NP_restrictions: node property restrictions
-    :param trigger_condition_list: list of strings that will trigger a diagnostic survey.
-    :param listening_duration: for diagnostics that are listening for trigger_condition_list, how long after start day to stop listening for the event
-    :param triggered_campaign_delay: delay of running the campaign/intervention after receiving a trigger from the trigger_condition_list
-    :return: nothing
+
+      nodes: nodes to target. All nodes: {"class": "NodeSetAll"}.
+        Subset of nodes: {"class": "NodeSetNodeList", "Node_List": list_of_nodeIDs}
+      positive_diagnosis_configs: list of events to happen to individual who receive a positive result from test
+      received_test_event: string for individuals to broadcast upon receiving diagnostic
+      IP_restrictions: list of IndividualProperty restrictions to restrict who takes action upon positive diagnosis
+      NP_restrictions: node property restrictions
+      trigger_condition_list: list of strings that will trigger a diagnostic survey.
+      listening_duration: for diagnostics that are listening for trigger_condition_list, how long after start day to stop listening for the event
+      triggered_campaign_delay: delay of running the campaign/intervention after receiving a trigger from the trigger_condition_list
+    
+    Returns: 
+      Nothing
     """
 
     # OLD version of DTK, without PfHRP2-enabled MalariaDiagnostic:

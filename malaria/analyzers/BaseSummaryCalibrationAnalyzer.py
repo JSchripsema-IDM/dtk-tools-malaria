@@ -59,36 +59,40 @@ class BaseSummaryCalibrationAnalyzer(BaseComparisonAnalyzer):
     def serialize(df):
         """
         Put cache of simulation samples and reference into a JSON serializable format for CalibManager.IterationState
-        :param df: pandas.DataFrame with MultiIndex columns (sample, channel) with final sample column = 'ref'
-        :return: JSON representation of the same content
+        
+        Args:
+            df: pandas.DataFrame with MultiIndex columns (sample, channel) with final sample column = 'ref'
+        
+        Returns: 
+            JSON representation of the same content
 
-        Example:
+        Examples::
 
-        sample                          3                    ref
-        channel    Incidents Person Years Incidents Person Years
-        Age Bin
-        0.5      610.199463   2546.861179     10.40           52
-        1.0      1032.260204  3036.082280     35.36           52
-        2.0      319.376240   6229.157240     53.20           76
-        4.0      1738.556756  6939.795139    128.35          151
+            sample                          3                    ref
+            channel    Incidents Person Years Incidents Person Years
+            Age Bin
+            0.5      610.199463   2546.861179     10.40           52
+            1.0      1032.260204  3036.082280     35.36           52
+            2.0      319.376240   6229.157240     53.20           76
+            4.0      1738.556756  6939.795139    128.35          151
 
-        Is converted into:
+        Is converted into::
 
-        {
-            "samples": [
-                {
+            {
+                "samples": [
+                    {
+                        "Age Bin": [ 0.5, 1.0, 2.0, 4.0 ],
+                        "Incidents": [ 610.199463, 1032.260204, 319.376240, 1738.556756 ],
+                        "Person Years": [ 2546.861179, 3036.082280, 6229.157240, 6939.795139 ]
+                    },
+                    ...
+                ]
+                "ref": {
                     "Age Bin": [ 0.5, 1.0, 2.0, 4.0 ],
-                    "Incidents": [ 610.199463, 1032.260204, 319.376240, 1738.556756 ],
-                    "Person Years": [ 2546.861179, 3036.082280, 6229.157240, 6939.795139 ]
-                },
-                ...
-            ]
-            "ref": {
-                "Age Bin": [ 0.5, 1.0, 2.0, 4.0 ],
-                "Incidents": [ 10.40, 35.36, 53.20, 128.35 ],
-                "Person Years": [ 52, 52, 76, 151 ]
+                    "Incidents": [ 10.40, 35.36, 53.20, 128.35 ],
+                    "Person Years": [ 52, 52, 76, 151 ]
+                }
             }
-        }
 
         """
 

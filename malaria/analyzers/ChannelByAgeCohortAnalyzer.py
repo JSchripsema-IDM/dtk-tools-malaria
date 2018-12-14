@@ -48,7 +48,7 @@ class ChannelByAgeCohortAnalyzer(BaseCalibrationAnalyzer):
         """
         This analyzer only needs to analyze simulations for the site it is linked to.
         N.B. another instance of the same analyzer may exist with a different site
-             and correspondingly different reference data.
+        and correspondingly different reference data.
         """
         return simulation.tags.get('__site__', False) == self.site.name
 
@@ -141,7 +141,7 @@ class PrevalenceByAgeCohortAnalyzer(ChannelByAgeCohortAnalyzer):
     Compare reference prevalence-by-age measurements to simulation output.
 
     N.B. Using the logic that converts annualized incidence and average populations to incidents and person years,
-         implicitly introduces a 1-year time constant for correlations in repeat prevalence measurements.
+    implicitly introduces a 1-year time constant for correlations in repeat prevalence measurements.
     """
 
     site_ref_type = 'prevalence_by_age'

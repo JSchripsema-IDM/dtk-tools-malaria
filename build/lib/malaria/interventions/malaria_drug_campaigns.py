@@ -16,49 +16,55 @@ def add_drug_campaign(cb, campaign_type, drug_code='', start_days=[0], coverage=
     """
     Add a drug campaign defined by the parameters to the config builder.
     Note: When using "trigger_condition_list", the first entry of "start_days" is the day that is used to start
-    listening for the trigger(s), if listening_duration is specified, the rest of the days are used to start others d;
-     "triggered_campaign_delay" indicates the delay period between receiving the trigger and the first campaign/intervention.
-     "listening_duration" is the duration for which the listen for the trigger, -1 indicates "indefinitely/forever".
-    :param cb: The :py:class:`DTKConfigBuilder <dtk.utils.core.DTKConfigBuilder>` that will receive the drug
-    intervention.
-    :param campaign_type: type of drug campaign (MDA, MSAT, SMC, fMDA, rfMSAT, or rfMDA)
-    # fMDA, rfMDA, rfMSAT are appropriate for household-type simulations only.
-    :param drug_code: The drug code of the drug regimen (AL, DP, etc; allowable types defined in malaria_drugs.py)
-    :param start_days: List of start days where the drug regimen will be distributed
-    :param coverage: Demographic coverage of the distribution (fraction of people at home during campaign)
-    :param repetitions: Number repetitions
-    :param interval: Timesteps between the repetitions. For RCD (rfMDA, rfMSAT), interval indicates the duration of RCD
-    :param diagnostic_type, diagnostic_threshold: diagnostic config for diagnostic-dependent campaigns (MSAT, fMDA, rfMSAT)
-    :param fmda_radius: radius of focal response upon finding infection, in km or 'hh' for within-household only
-    :param node_selection_type: restriction on broadcasting focal response trigger.
-    # DISTANCE_ONLY: It will send the event to nodes that are within a given distance.
-    # MIGRATION_NODES_ONLY: It will only send the event to nodes that the individual can migrate to.
-    # DISTANCE_AND_MIGRATION: It will only send the even to migratable nodes that are within a given distance.
-    # Migrateable nodes = Local and Regional.
-    :param trigger_coverage: for RCD only. Fraction of trigger events that will trigger an RCD. "coverage" param sets
-    the fraction of individuals reached during RCD response.
-    :param snowballs: number of snowball levels in reactive response.
-    :param treatment_delay: for MSAT and fMDA, length of time between administering diagnostic and giving drugs; for RCD, length
-    of time between treating index case and triggering RCD response.
-    :param triggered_campaign_delay: when using trigger_condition_list, the delay between receiving the trigger event and
-    running the triggered campaign/intervention
-    :param nodes: list of node IDs; if empty, defaults to all nodes
-    :param target_group: dict of {'agemin' : x, 'agemax' : y} to target MDA, SMC, MSAT, fMDA to individuals between
-    x and y years of age.
-    For fMDA, only the testing portion is targeted; everyone is eligible for treating.
-    :param dosing: change drug dosing style. Default is FullTreatmentCourse.
-    :param drug_ineligibility_duration: if this param is > 0, use IndividualProperties to prevent people from receiving
-    drugs too frequently. Demographics file will need to define the IP DrugStatus with possible values None and
-    RecentDrug. Individuals with status RecentDrug will not receive drugs during drug campaigns, though they are still
-    eligible for receiving diagnostics (in MSAT, etc). Individuals who receive drugs during campaigns will have their
-    DrugStatus changed to RecentDrug for drug_ineligibility_duration days.
-    :param node_property_restrictions: used with NodePropertyRestrictions.
-    :param ind_property_restrictions: Restricts itn based on list of individual properties in format [{"BitingRisk":"High", "IsCool":"Yes}, {"IsRich": "Yes"}]
-    :param trigger_condition_list: When trigger_string is set, the first entry of start_days is the day that is used to start
-    listening for the trigger(s), the campaign happens when the trigger(s) is received.
-    :param listening_duration: is the duration for which the listen for the trigger, -1 indicates "indefinitely/forever"
-    Format: list of dicts: [{ "NodeProperty1" : "PropertyValue1" }, {'NodeProperty2': "PropertyValue2"}, ...]
-    :param adherent_drug_configs: a list of adherent drug configurations, which are dictionaries (from configure_adherent_drug)
+    listening for the trigger(s), if listening_duration is specified, the rest of the days are used to start others.
+     
+    * "triggered_campaign_delay" indicates the delay period between receiving the trigger and the first campaign/intervention.
+    * "listening_duration" is the duration for which the listen for the trigger, -1 indicates "indefinitely/forever".
+    
+    Args:
+        cb: The :py:class:`DTKConfigBuilder <dtk.utils.core.DTKConfigBuilder>` that will receive the drug intervention.
+        campaign_type: type of drug campaign (MDA, MSAT, SMC, fMDA, rfMSAT, or rfMDA)
+            fMDA, rfMDA, rfMSAT are appropriate for household-type simulations only.
+        drug_code: The drug code of the drug regimen (AL, DP, etc; allowable types defined in malaria_drugs.py)
+        start_days: List of start days where the drug regimen will be distributed
+        coverage: Demographic coverage of the distribution (fraction of people at home during campaign)
+        repetitions: Number repetitions
+        interval: Timesteps between the repetitions. For RCD (rfMDA, rfMSAT), interval indicates the duration of RCD
+        diagnostic_type: with diagnostic_threshold, the diagnostic config for diagnostic-dependent campaigns (MSAT, fMDA, rfMSAT)
+        diagnostic_threshold: See above
+        fmda_radius: radius of focal response upon finding infection, in km or 'hh' for within-household only
+        node_selection_type: restriction on broadcasting focal response trigger.
+
+            * DISTANCE_ONLY: It will send the event to nodes that are within a given distance.
+            * MIGRATION_NODES_ONLY: It will only send the event to nodes that the individual can migrate to.
+            * DISTANCE_AND_MIGRATION: It will only send the even to migratable nodes that are within a given distance.
+            * Migrateable nodes = Local and Regional.
+
+        trigger_coverage: for RCD only. Fraction of trigger events that will trigger an RCD. "coverage" param sets
+            the fraction of individuals reached during RCD response.
+        snowballs: number of snowball levels in reactive response.
+        treatment_delay: for MSAT and fMDA, length of time between administering diagnostic and giving drugs; for RCD, length
+            of time between treating index case and triggering RCD response.
+        triggered_campaign_delay: when using trigger_condition_list, the delay between receiving the trigger event and
+            running the triggered campaign/intervention
+        nodes: list of node IDs; if empty, defaults to all nodes
+        target_group: dict of {'agemin' : x, 'agemax' : y} to target MDA, SMC, MSAT, fMDA to individuals between
+            x and y years of age.
+            For fMDA, only the testing portion is targeted; everyone is eligible for treating.
+        dosing: change drug dosing style. Default is FullTreatmentCourse.
+        drug_ineligibility_duration: if this param is > 0, use IndividualProperties to prevent people from receiving
+            drugs too frequently. Demographics file will need to define the IP DrugStatus with possible values None and
+            RecentDrug. Individuals with status RecentDrug will not receive drugs during drug campaigns, though they are still
+            eligible for receiving diagnostics (in MSAT, etc). Individuals who receive drugs during campaigns will have their
+            DrugStatus changed to RecentDrug for drug_ineligibility_duration days.
+        node_property_restrictions: used with NodePropertyRestrictions.
+        ind_property_restrictions: Restricts ITN based on list of individual properties in format [{"BitingRisk":"High", "IsCool":"Yes}, {"IsRich": "Yes"}]
+        trigger_condition_list: When trigger_string is set, the first entry of start_days is the day that is used to start
+            listening for the trigger(s), the campaign happens when the trigger(s) is received.
+        listening_duration: is the duration for which the listen for the trigger, -1 indicates "indefinitely/forever"
+            Format: list of dicts: [{ "NodeProperty1" : "PropertyValue1" }, {'NodeProperty2': "PropertyValue2"}, ...]
+        adherent_drug_configs: a list of adherent drug configurations, which are dictionaries (from configure_adherent_drug)
+    
     """
 
     expire_recent_drugs = {}

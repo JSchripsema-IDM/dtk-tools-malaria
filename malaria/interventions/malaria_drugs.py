@@ -3,13 +3,16 @@ def add_drug_campaign(cb, drug_code, start_days, coverage=1.0, repetitions=3, in
     """
     Add a drug campaign defined by the parameters to the config builder.
 
-    :param cb: The :py:class:`DTKConfigBuilder <dtk.utils.core.DTKConfigBuilder>` that will receive the drug intervention.
-    :param drug_code: The drug code of the drug regimen (ex.: MDA_AL, MSAT_DP, SMC_SPA)
-    :param start_days: List of start days where the drug regimen will be distributed
-    :param coverage: Demographic coverage of the distribution
-    :param repetitions: Number repetitions
-    :param interval: Timesteps between the repetitions
-    :return: Nothing
+    Args:
+        cb: The :py:class:`DTKConfigBuilder <dtk.utils.core.DTKConfigBuilder>` that will receive the drug intervention.
+        drug_code: The drug code of the drug regimen (ex.: MDA_AL, MSAT_DP, SMC_SPA)
+        start_days: List of start days where the drug regimen will be distributed
+        coverage: Demographic coverage of the distribution
+        repetitions: Number repetitions
+        interval: Timesteps between the repetitions
+    
+    Returns: 
+        Nothing
     """
     print('Warning: using deprecated version of add_drug_campaign.')
     [campaign_type, drugs] = drug_code.split('_')
@@ -26,9 +29,12 @@ def drug_configs_from_code(cb,drug_code):
     For example passing the ``MDA_ALP`` drug code, will add the drugs config for Artemether, Lumefantrine, Primaquine to the configuration file
     and will return a dictionary containing a Full Treatment course for those 3 drugs.
 
-    :param cb: The :py:class:`DTKConfigBuilder <dtk.utils.core.DTKConfigBuilder>` that will receive the drug configuration
-    :param drug_code: Code of the drug to add
-    :return: A dictionary containing the parameters for an intervention using the given drug
+    Args:
+        cb: The :py:class:`DTKConfigBuilder <dtk.utils.core.DTKConfigBuilder>` that will receive the drug configuration
+        drug_code: Code of the drug to add
+    
+    Returns: 
+        A dictionary containing the parameters for an intervention using the given drug
     """
     dosing_type = "FullTreatmentCourse"
     drug_array = drug_cfg[drug_code]
@@ -51,11 +57,13 @@ def set_drug_param(cb, drugname, parameter, value):
     """
     Set a drug parameter in the config builder passed.
 
-    :param cb: :py:class:`DTKConfigBuilder <dtk.utils.core.DTKConfigBuilder>` containing the simulation configuration
-    :param drugname: The drug that has a parameter to set
-    :param parameter:  The parameter to set
-    :param value: The new value to set
-    :return:
+    Args:
+        cb: :py:class:`DTKConfigBuilder <dtk.utils.core.DTKConfigBuilder>` containing the simulation configuration
+        drugname: The drug that has a parameter to set
+        parameter:  The parameter to set
+        value: The new value to set
+    
+    Returns:
     """
     cb.config['parameters']['Malaria_Drug_Params'][drugname][parameter] = value
     return {'.'.join([drugname, parameter]): value}
@@ -64,10 +72,13 @@ def get_drug_param(cb, drugname, parameter):
     """
     Get a parameter for a given drug
 
-    :param cb: The :py:class:`DTKConfigBuilder <dtk.utils.core.DTKConfigBuilder>` holding the configuration
-    :param drugname: The drug that holds the parameter we want to retrieve
-    :param parameter: The name of the parameter
-    :return: The parameter value or None if not found
+    Args:
+        cb: The :py:class:`DTKConfigBuilder <dtk.utils.core.DTKConfigBuilder>` holding the configuration
+        drugname: The drug that holds the parameter we want to retrieve
+        parameter: The name of the parameter
+    
+    Returns:
+        The parameter value or None if not found
     """
     try:
         return cb.config['parameters']['Malaria_Drug_Params'][drugname][parameter]

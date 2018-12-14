@@ -39,17 +39,17 @@ class ChannelBySeasonCohortAnalyzer(BaseCalibrationAnalyzer):
 
         data = data[2*365:]
         data['Day'] = data['Time'].apply(lambda x: (x + 1) % 365)
-        data = data[['Day', 'Species', 'Population', 'VectorPopulation']]
+        data = data[['Day', 'NodeID', 'Species', 'Population', 'VectorPopulation']]
         data['Vector_per_Human'] = data['VectorPopulation'] / data['Population']
-        data = data.groupby(['Day', 'Species'])['Vector_per_Human'].apply(np.mean).reset_index()
+        data = data.groupby(['Day', 'NodeID', 'Species'])['Vector_per_Human'].apply(np.mean).reset_index()
 
         dateparser = lambda x: datetime.datetime.strptime(x, '%j').month
         data['Month'] = data['Day'].apply(lambda x: dateparser(str(x + 1)))
-        data = data.groupby(['Month', 'Species'])['Vector_per_Human'].apply(np.mean).reset_index()
+        data = data.groupby(['Month', 'NodeID', 'Species'])['Vector_per_Human'].apply(np.mean).reset_index()
 
         data = data.rename(columns={'Vector_per_Human': 'Counts', 'Species': 'Channel'})
-        data = data.sort_values(['Channel', 'Month'])
-        data = data.set_index(['Channel', 'Month'])
+        data = data.sort_values(['Channel', 'Month', 'NodeID'])
+        data = data.set_index(['Channel', 'Month', 'NodeID'])
         channel_data_dict = {}
 
         for channel in self.site.metadata['species']:

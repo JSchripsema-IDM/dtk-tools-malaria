@@ -32,7 +32,7 @@ class PositiveFractionByDistanceAnalyzer(BaseCalibrationAnalyzer):
         '''
         This analyzer only needs to analyze simulations for the site it is linked to.
         N.B. another instance of the same analyzer may exist with a different site
-             and correspondingly different reference data.
+        and correspondingly different reference data.
         '''
         return sim_metadata.get('__site__', False) == self.site.name
 

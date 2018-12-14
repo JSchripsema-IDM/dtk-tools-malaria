@@ -6,58 +6,65 @@ def configure_adherent_drug(cb, cost=1, doses=[], dose_interval=1,
                             non_adherence_distribution=[1], max_dose_consideration_duration=40,
                             took_dose_event="Took_Dose"):
     """
-        Not setting adherence_config will make the person take the whole drug (same effect as AntimalarialDrug class)
-    :param cb: The :py:class:`DTKConfigBuilder <dtk.utils.core.DTKConfigBuilder>` holding the campaign that
-    will receive the IRS event
-    :param cost: Sets the ``Cost_To_Consumer`` parameter
-    :param doses: a list of drug lists for each dose
-    ex: [
-        [ "DrugA", "DrugB" ],
-        [ "DrugA", "DrugB" ],
-        [], <--an empty dose, the person would be "skipping" taking anything that day
-        [ "DrugC" ],
-        [ "DrugD", "DrugD" ]
-    ]
-    :param dont_allow_duplicates: If an individual's container has an intervention, set to 1 to prevent them from
-    receiving another copy of the intervention.
-    :param dose_interval: interval between taking defined doses, in dt.
-    :param dosing_type: currently, this is one of the DrugUsageType enums, but might change in the future
-    :param adherence_config: a dictionary defining WaningEffects or WaningEffectCombo if not defined: all drugs taken
-    ex:  {
-        "class" : "WaningEffectCombo",
-        "Effect_List" : [
+    Not setting adherence_config will make the person take the whole drug (same effect as AntimalarialDrug class)
+    
+    Args:
+        cb: The :py:class:`DTKConfigBuilder <dtk.utils.core.DTKConfigBuilder>` holding the campaign that
+            will receive the IRS event
+        cost: Sets the ``Cost_To_Consumer`` parameter
+        doses: a list of drug lists for each dose. For example::
+
+            [
+                [ "DrugA", "DrugB" ],
+                [ "DrugA", "DrugB" ],
+                [], <--an empty dose, the person would be "skipping" taking anything that day
+                [ "DrugC" ],
+                [ "DrugD", "DrugD" ]
+            ]
+
+        dont_allow_duplicates: If an individual's container has an intervention, set to 1 to prevent them from
+            receiving another copy of the intervention.
+        dose_interval: interval between taking defined doses, in dt.
+        dosing_type: currently, this is one of the DrugUsageType enums, but might change in the future
+        adherence_config: a dictionary defining WaningEffects or WaningEffectCombo if not defined: all drugs taken. For example::
+        
             {
-                "class": "WaningEffectMapLinearAge",
-                "Initial_Effect" : 1.0,
-                "Durability_Map" :
-                {
-                    "Times"  : [ 0.0,  12.99999,  13.0, 125.0 ],
-                    "Values" : [ 0.0,   0.0,       1.0,   1.0 ]
-                }
-            },
-            {
-                "class": "WaningEffectMapCount",
-                "Initial_Effect" : 1.0,
-                "Durability_Map" :
-                {
-                    "Times"  : [ 1.0, 2.0, 3.0 ],
-                    "Values" : [ 0.9, 0.7, 0.5 ]
-                }
-            },
-            {
-                "class": "WaningEffectExponential",
-                "Initial_Effect": 1.0,
-                "Decay_Time_Constant" : 7
+                "class" : "WaningEffectCombo",
+                "Effect_List" : [
+                    {
+                        "class": "WaningEffectMapLinearAge",
+                        "Initial_Effect" : 1.0,
+                        "Durability_Map" :
+                        {
+                            "Times"  : [ 0.0,  12.99999,  13.0, 125.0 ],
+                            "Values" : [ 0.0,   0.0,       1.0,   1.0 ]
+                        }
+                    },
+                    {
+                        "class": "WaningEffectMapCount",
+                        "Initial_Effect" : 1.0,
+                        "Durability_Map" :
+                        {
+                            "Times"  : [ 1.0, 2.0, 3.0 ],
+                            "Values" : [ 0.9, 0.7, 0.5 ]
+                        }
+                    },
+                    {
+                        "class": "WaningEffectExponential",
+                        "Initial_Effect": 1.0,
+                        "Decay_Time_Constant" : 7
+                    }
+                ]
             }
-        ]
-    }
-    :param took_dose_event: an event that gets sent out every time a dose is taken
-    :param non_adherence_options:  This is an array of enums where each enum defines what happens when the user is not adherent.
+        took_dose_event: an event that gets sent out every time a dose is taken
+        non_adherence_options:  This is an array of enums where each enum defines what happens when the user is not adherent.
             if empty, NEXT_UPDATE is used. options: ["STOP", "NEXT_UPDATE", "NEXT_DOSAGE_TIME", "LOST_TAKE_NEXT"]
-    :param non_adherence_distribution:  An array of probabilities. There must be one value in this array for each value
+        non_adherence_distribution:  An array of probabilities. There must be one value in this array for each value
             in non_adherence_options. The sum of these values must equal 1.0.
-    :param max_dose_consideration_duration: Max_Dose_Consideration_Duration The maximum number of days that an individual will  consider taking the doses of the drug
-    :return: the configured AdherentDrug class dictionary
+        max_dose_consideration_duration: Max_Dose_Consideration_Duration The maximum number of days that an individual will  consider taking the doses of the drug
+    
+    Returns: 
+        The configured AdherentDrug class dictionary
     """
     # built-in default so we can run this function by just putting in the config builder.
     if not adherence_config:

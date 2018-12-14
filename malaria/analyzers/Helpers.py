@@ -19,17 +19,14 @@ logger = logging.getLogger(__name__)
 def grouped_df(df, pfprdict, index, column_keep, column_del):
     """
     Recut dataframe to recategorize data into desired age and parasitemia bins
-
-    df - Dataframe to be rebinned
-
-    pfprdict - Dictionary mapping postive counts per slide view (http://garkiproject.nd.edu/demographic-parasitological-surveys.html)
-                to density of parasites/gametocytes per uL
-
-    index - Multi index into which 'df' is rebinned
-
-    column_keep - Column (e.g. parasitemia) to keep
-
-    column_del - Column (e.g. gametocytemia) to delete
+    
+    Args:
+        df: Dataframe to be rebinned
+        pfprdict: Dictionary mapping postive counts per slide view (http://garkiproject.nd.edu/demographic-parasitological-surveys.html)
+                  to density of parasites/gametocytes per uL
+        index: Multi index into which 'df' is rebinned
+        column_keep: Column (e.g. parasitemia) to keep
+        column_del: Column (e.g. gametocytemia) to delete
     """
     dftemp = df.copy()
     del dftemp[column_del]
@@ -57,7 +54,7 @@ def season_channel_age_density_csv_to_pandas(csvfilename, metadata):
 
     https://github.com/pselvaraj87/Malaria-GarkiDB
 
-    The data in the csv file is stored as:
+    The data in the csv file is stored as::
 
       1          Patient_id  Village      Seasons        Age     Age Bins      Parasitemia  Gametocytemia
       2 0           4464     Batakashi      DC2  0.00547945205479  1.0          0.0               0.0
@@ -70,14 +67,14 @@ def season_channel_age_density_csv_to_pandas(csvfilename, metadata):
       ...
       ...
 
-    to a Pandas dataframe with Multi Index:
+    to a Pandas dataframe with Multi Index::
 
-    Channel                            Season     Age Bin   PfPR Bin
-    PfPR by Gametocytemia and Age Bin  start_wet  5         0             0
-                                                            50            0
-                                                            500           0
-                                                            5000          5
-      ...
+        Channel                            Season     Age Bin   PfPR Bin
+        PfPR by Gametocytemia and Age Bin  start_wet  5         0             0
+                                                                50            0
+                                                                500           0
+                                                                5000          5
+        ...
 
     """
     df = pd.read_csv(csvfilename)
@@ -118,27 +115,28 @@ def season_channel_age_density_csv_to_pandas(csvfilename, metadata):
 
 def season_channel_age_density_json_to_pandas(reference, bins):
     """
-    A helper function to convert reference data from its form in e.g. site_Laye.py:
+    A helper function to convert reference data from its form in e.g. site_Laye.py::
 
-    "Seasons": {
-        "start_wet": {
-            "PfPR by Parasitemia and Age Bin": [
-                [2, 0, 0, 0, 1, 1], [4, 1, 2, 3, 2, 6], [7, 9, 4, 2, 4, 1]],
-            "PfPR by Gametocytemia and Age Bin": [
-                [0, 0, 0, 5, 0, 0], [3, 9, 8, 1, 0, 0], [16, 4, 6, 1, 0, 0]]
-        },
+        "Seasons": {
+            "start_wet": {
+                "PfPR by Parasitemia and Age Bin": [
+                    [2, 0, 0, 0, 1, 1], [4, 1, 2, 3, 2, 6], [7, 9, 4, 2, 4, 1]],
+                "PfPR by Gametocytemia and Age Bin": [
+                    [0, 0, 0, 5, 0, 0], [3, 9, 8, 1, 0, 0], [16, 4, 6, 1, 0, 0]]
+            },
+            ...
+        }
+
+    To a pd.DataFrame with MultiIndex::
+                                                                         
+        Channel                            Season     Age Bin   PfPR Bin Counts
+        PfPR by Gametocytemia and Age Bin  start_wet  5         0             0
+                                                                50            0
+                                                                500           0
+                                                                5000          5
+                                                                50000         0
+                                                                500000        0
         ...
-    }
-
-    To a pd.DataFrame with MultiIndex:
-                                                                     Counts
-    Channel                            Season     Age Bin   PfPR Bin
-    PfPR by Gametocytemia and Age Bin  start_wet  5         0             0
-                                                            50            0
-                                                            500           0
-                                                            5000          5
-                                                            50000         0
-                                                            500000        0
     """
 
     season_dict = {}
@@ -164,7 +162,7 @@ def season_channel_age_density_json_to_pandas(reference, bins):
 
 def channel_age_json_to_pandas(reference, index_key='Age Bin'):
     """
-    A helper function to convert reference data from its form in e.g. site_Dielmo.py:
+    A helper function to convert reference data from its form in e.g. site_Dielmo.py::
 
         reference_data = {
             "Average Population by Age Bin": [ 55, 60, 55, 50, 50, ... ],
@@ -172,15 +170,15 @@ def channel_age_json_to_pandas(reference, index_key='Age Bin'):
             "Annual Clinical Incidence by Age Bin": [ 3.2, 5, 6.1, 4.75, 3.1, ... ]
         }
 
-    To a pd.DataFrame:
+    To a pd.DataFrame::
 
-             Annual Clinical Incidence by Age Bin  Average Population by Age Bin
-    Age Bin
-    1                                        3.20                             55
-    2                                        5.00                             60
-    3                                        6.10                             55
-    4                                        4.75                             50
-    5                                        3.10                             50
+                 Annual Clinical Incidence by Age Bin  Average Population by Age Bin
+        Age Bin
+        1                                        3.20                             55
+        2                                        5.00                             60
+        3                                        6.10                             55
+        4                                        4.75                             50
+        5                                        3.10                             50
 
     """
     reference_df = pd.DataFrame(reference)
@@ -194,11 +192,15 @@ def convert_annualized(s, reporting_interval=None, start_day=None):
     """
     Use Time index level to revert annualized rate channels,
     e.g. Annual Incidence --> Incidence per Reporting Interval
-         Average Population --> Person Years
-    :param s: pandas.Series with 'Time' level in multi-index
-    :param reporting_interval: (optional) metadata from original output file on interval related to 'Time' index
-    :param start_day: (optional) metadata from original output file on beginning of first aggregation interval
-    :return: pandas.Series normalized to Reporting Interval as a fraction of the year
+    Average Population --> Person Years
+
+    Args:
+        s: pandas.Series with 'Time' level in multi-index
+        reporting_interval: (optional) metadata from original output file on interval related to 'Time' index
+        start_day: (optional) metadata from original output file on beginning of first aggregation interval
+    
+    Returns: 
+        pandas.Series normalized to Reporting Interval as a fraction of the year
     """
 
     s_ix = s.index
@@ -223,9 +225,12 @@ def convert_annualized(s, reporting_interval=None, start_day=None):
 def convert_to_counts(rates, pops):
     """
     Convert population-normalized rates to counts
-    :param rates: a pandas.Series of normalized rates
-    :param pops: a pandas.Series of average population counts
-    :return: a pandas.Series (same binning as rates)
+
+    Args:
+        rates: a pandas.Series of normalized rates
+        pops: a pandas.Series of average population counts
+    
+    Returns: a pandas.Series (same binning as rates)
     """
     rate_idx = rates.index.names
     pop_idx = pops.index.names
@@ -242,8 +247,12 @@ def convert_to_counts(rates, pops):
 def age_from_birth_cohort(df):
     """
     Reinterpret 'Time' as 'Age Bin' for a birth cohort
-    :param df: a pandas.DataFrame of counts and 'Time' in days
-    :return: a pandas.DataFrame including an additional (or overwritten) 'Age Bin' column
+    
+    Args:
+        df: a pandas.DataFrame of counts and 'Time' in days
+    
+    Returns: 
+        a pandas.DataFrame including an additional (or overwritten) 'Age Bin' column
     """
 
     df['Age Bin'] = df['Time'] / 365.0   # Time in days but Age in years
@@ -253,9 +262,13 @@ def age_from_birth_cohort(df):
 def season_from_time(df, seasons=None):
     """
     Reinterpret 'Time' as 'Month' or 'Season' for seasonal data
-    :param df: a pandas.DataFrame of counts and 'Time' in days
-    :param seasons: optional dictionary of month names to season names
-    :return: a pandas.DataFrame including an additional 'Season' or 'Month' column
+    
+    Args:
+        df: a pandas.DataFrame of counts and 'Time' in days
+        seasons: optional dictionary of month names to season names
+    
+    Returns: 
+        a pandas.DataFrame including an additional 'Season' or 'Month' column
     """
 
     # Day of Year from Time (in days)
@@ -284,10 +297,14 @@ def pairwise(iterable):
 def aggregate_on_index(df, index, keep=slice(None)):
     """
     Aggregate and re-index data on specified (multi-)index (levels and) intervals
-    :param df: a pandas.DataFrame with columns matching the specified (Multi)Index (level) names
-    :param index: pandas.(Multi)Index of categorical values or right-bin-edges, e.g. ['early', 'late'] or [5, 15, 100]
-    :param keep: optional list of columns to keep, default=all
-    :return: pandas.Series or DataFrame of specified channels aggregated and indexed on the specified binning
+    
+    Args:
+        df: a pandas.DataFrame with columns matching the specified (Multi)Index (level) names
+        index: pandas.(Multi)Index of categorical values or right-bin-edges, e.g. ['early', 'late'] or [5, 15, 100]
+        keep: optional list of columns to keep, default=all
+    
+    Returns: 
+        pandas.Series or DataFrame of specified channels aggregated and indexed on the specified binning
     """
 
     if isinstance(index, pd.MultiIndex):

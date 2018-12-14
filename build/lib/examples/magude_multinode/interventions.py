@@ -191,17 +191,13 @@ def add_mda(cb, events_df):
                           nodes=node_list)
 
 
-def add_rcd(self, cb, events_df):
+def add_rcd(cb, events_df):
     rcd_field_list = ["coverage", "trigger_coverage", "interval"]
-    binned_intervene_events, binned_and_grouped, data_fields = self.try_campaign_compression(events_df, rcd_field_list)
+    binned_intervene_events, binned_and_grouped, data_fields = try_campaign_compression(events_df, rcd_field_list)
 
     for table, group in binned_and_grouped:
         table_dict = dict(zip((data_fields), table))
         node_list = sorted(group['grid_cell'])
-        if node_list == sorted(self.catch_cells):
-            nodeIDs = []
-        else:
-            nodeIDs = node_list
 
         for i in range(len(events_df)):
             add_drug_campaign(cb,
@@ -213,7 +209,7 @@ def add_rcd(self, cb, events_df):
                               coverage=float(table_dict['coverage']),
                               trigger_coverage=float(table_dict['trigger_coverage']),
                               interval=float(table_dict['interval']),
-                              nodes=nodeIDs)
+                              nodes=node_list)
 
 
 
@@ -222,8 +218,7 @@ itn_default = os.path.join(interventions_folder, "grid_all_itn_events.csv")
 irs_default = os.path.join(interventions_folder, "grid_all_irs_events.csv")
 mda_default = os.path.join(interventions_folder, "grid_all_mda_events.csv")
 rcd_default = os.path.join(interventions_folder, "grid_all_rcd_events.csv")
-def preload_intervention_csvs(catch,
-                              simulation_start_date,
+def preload_intervention_csvs(sim_start_date,
                               hs_file=hs_default,
                               itn_file=itn_default,
                               irs_file=irs_default,
@@ -245,7 +240,7 @@ def preload_intervention_csvs(catch,
         df = df_dict[key]
 
         # Add column which specifies which simulation day the intervention of that row is to be implemented
-        df['simday'] = [convert_to_day_365(x, simulation_start_date, "%Y-%m-%d") for x in df.fulldate]
+        df['simday'] = [convert_to_day_365(x, sim_start_date, "%Y-%m-%d") for x in df.fulldate]
 
     return df_dict
 
@@ -266,5 +261,6 @@ def add_intervention_combos(cb, intervention_df_dict, itn, irs, mda, rcd):
             "mda": mda,
             "rcd": rcd}
 
-def add_all_interventions(cb, intervention_df_dict):
+def add_all_interventions(cb, sim_start_date):
+    intervention_df_dict = preload_intervention_csvs(sim_start_date)
     return add_intervention_combos(cb, intervention_df_dict, True, True, True, True)
