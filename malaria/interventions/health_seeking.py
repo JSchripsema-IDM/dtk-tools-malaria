@@ -244,6 +244,27 @@ def add_health_seeking_by_chw(config_builder,
 
 def get_drug_config(drug, dosing, receiving_drugs_event, drug_ineligibility_duration, expire_recent_drugs) :
 
+    """
+    Get the drug dosage configuration.
+
+    Args:
+      drug: The drug to administer. Use a str for a single drug or
+          a list of str for multiple drugs.
+      dosing: The dosing for the drugs (**Dosing_Type** parameter).
+      receiving_drugs_event: The event that is broadcast when a drug
+        is received (**Broadcast_Event** parameter).
+      drug_ineligibility_duration: The number of days to prevent an 
+        individual from receiving additional drugs after receiving a 
+        drug. 
+      expire_recent_drugs: The dictionary that defines the **PropertyValueChanger**
+        configuration that is used to set the individual property **DrugStatus**
+        to RecentDrug. 
+
+    Returns:
+      The dictionary containing the drug configuration and the list of
+      drugs to distribute.
+    """
+
     # if drug variable is a list, let's use MultiInterventionDistributor
     if isinstance(drug, str):
         # print('Just a single drug: ' + drug)
@@ -273,6 +294,17 @@ def get_drug_config(drug, dosing, receiving_drugs_event, drug_ineligibility_dura
 
 def build_actual_treatment_cfg(rate, drug_config, drugs) :
 
+"""
+Build the drug treatment itself.
+
+Args:
+  rate: The rate of distribution (1/**Delay_Period**).
+  drug_config: The dictionary describing the drug intervention (
+    **AntimalarialDrug**, **MultiInterventionDistributor**, or
+    **DelayedIntervention** class).
+  drugs: The list of dictionaries that describes the drug intervention
+    (**Actual_IndividualIntervention_Configs** parameter).
+"""
     if rate > 0:
         actual_config = {
             "class": "DelayedIntervention",
